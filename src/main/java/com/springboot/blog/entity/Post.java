@@ -32,6 +32,6 @@ public class Post {
     private String content;
     
     public void fun() {
-    	System.out.print("scanned");
+    	System.out.print("scanned master");
     }
 }
