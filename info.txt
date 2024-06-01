@@ -1,0 +1,6 @@
+Controller: Manages HTTP requests and responses.
+Entity: Represents data objects mapped to database tables.
+Repository: Provides CRUD operations on entities.
+Service: Contains business logic.
+Exception: Handles errors and custom exceptions.
+Utils:Contains utility classes and methods.
