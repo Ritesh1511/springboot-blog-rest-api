@@ -1,6 +1,11 @@
 package com.springboot.blog.service.impl;
 
 import com.springboot.blog.exception.ResourceNotFoundException;
+import com.springboot.blog.payload.PostResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import com.springboot.blog.entity.Post;
@@ -8,21 +13,28 @@ import com.springboot.blog.payload.PostDto;
 import com.springboot.blog.repository.PostRepository;
 import com.springboot.blog.service.PostService;
 
+import org.springframework.data.domain.Pageable;
+
+
 import java.util.List;
 import java.util.stream.Collectors;
+
+
 
 
 @Service
 public class PostServiceImpl implements PostService{
 
-	
-	private PostRepository postRepository;
+	private static final Logger logger = LoggerFactory.getLogger(PostService.class);
+
+	private  PostRepository postRepository;
 	
 	public PostServiceImpl(PostRepository postRepository) {
 
 		this.postRepository=postRepository;
 	}
 	
+
 	@Override
 	public PostDto createPost(PostDto postDto) {
 		
@@ -38,13 +50,39 @@ public class PostServiceImpl implements PostService{
 	 
 	}
 
-	@Override
-	public List<PostDto> getAllPost() {
+    @Override
+	public PostResponse getAllPost(int pageNo, int pageSize) {
+	// Create Pageable instance
+	Pageable pageable = PageRequest.of(pageNo, pageSize);
+	logger.info("------- Pageable created with pageNo: {} and pageSize: {}", pageNo, pageSize);
 
-		List<Post> posts = postRepository.findAll(); //postRepository expects post
+	// Fetch page of posts
+	Page<Post> posts = postRepository.findAll(pageable);
+		logger.info("------- posts: Total elements={}, Total pages={}, Content={}", posts.getTotalElements(), posts.getTotalPages(), posts.getContent());
 
-		return posts.stream().map( post  -> mapToDto(post)).collect(Collectors.toList());
-	}
+		// Map Page<Post> to List<PostDto>
+	List<Post> listOfPosts = posts.getContent();
+	logger.info("------- List of posts: {}", listOfPosts);
+
+	List<PostDto> content = listOfPosts.stream()
+			.map(this::mapToDto)
+			.collect(Collectors.toList());
+	logger.info("------- Mapped PostDto list: {}", content);
+
+	// Create PostResponse object
+	PostResponse postResponse = new PostResponse();
+	postResponse.setContent(content);
+	postResponse.setPageNo(posts.getNumber());
+	postResponse.setPageSize(posts.getSize());
+	postResponse.setTotalpages(posts.getTotalPages());
+	postResponse.setTotalElement(posts.getTotalElements());
+	postResponse.setLast(posts.isLast());
+
+	logger.info("------- Constructed PostResponse: {}", postResponse);
+
+	return postResponse;
+}
+
 
 	@Override
 	public PostDto getPostById(long id) {

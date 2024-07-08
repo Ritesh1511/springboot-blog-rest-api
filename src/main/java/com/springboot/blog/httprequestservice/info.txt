@@ -1,0 +1,2 @@
+HttpRequestService requestFromCode = new HttpRequestService();
+requestFromCode.makeGetRequest("http://localhost:8080/api/posts/2" );
