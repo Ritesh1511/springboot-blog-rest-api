@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.springboot.blog.entity.Post;
@@ -51,9 +52,12 @@ public class PostServiceImpl implements PostService{
 	}
 
     @Override
-	public PostResponse getAllPost(int pageNo, int pageSize) {
+	public PostResponse getAllPost(int pageNo, int pageSize , String sortBy , String sortDir) {
 	// Create Pageable instance
-	Pageable pageable = PageRequest.of(pageNo, pageSize);
+
+		Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+		Pageable pageable = PageRequest.of(pageNo , pageSize , sort);
+
 	logger.info("------- Pageable created with pageNo: {} and pageSize: {}", pageNo, pageSize);
 
 	// Fetch page of posts
